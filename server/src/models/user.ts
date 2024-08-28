@@ -1,6 +1,13 @@
-import { model, Schema } from "mongoose"
+import { model, Schema, Types } from "mongoose"
 
-const userSchema = new Schema({
+export interface UserDoc {
+  _id: Types.ObjectId
+  email: string
+  role: "user" | "author"
+  name?: string
+}
+
+const userSchema = new Schema<UserDoc>({
   name: {
     type: String,
     trim: true,
@@ -25,3 +32,6 @@ export const findUserByEmail = async (email: string) =>
 
 export const createUser = async (email: string) =>
   await UserModel.create({ email })
+
+export const findUserById = async (id: Types.ObjectId) =>
+  await UserModel.findById(id)

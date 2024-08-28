@@ -1,9 +1,19 @@
 import { compareSync, genSaltSync, hashSync } from "bcrypt"
 import { model, Schema, Types } from "mongoose"
 
-const verifyTokenSchema = new Schema({
+interface VerificationTokenDoc {
+  userId: Types.ObjectId
+  token: string
+  expires: Date
+}
+
+interface Methods {
+  compare: (token: string) => boolean
+}
+
+const verifyTokenSchema = new Schema<VerificationTokenDoc, {}, Methods>({
   userId: {
-    type: Types.ObjectId,
+    type: "ObjectID",
     required: true,
   },
   token: {
@@ -26,7 +36,7 @@ verifyTokenSchema.pre("save", function (next) {
   next()
 })
 
-verifyTokenSchema.methods.compare = function (token: string) {
+verifyTokenSchema.methods.compare = function (token) {
   return compareSync(token, this.token)
 }
 
@@ -38,4 +48,10 @@ export const createVerificationToken = async (
 ) => await VerificationTokenModel.create({ userId, token })
 
 export const deleteVerificationToken = async (userId: Types.ObjectId) =>
+  await VerificationTokenModel.findOneAndDelete({ userId })
+
+export const findVerificationToken = async (userId: Types.ObjectId) =>
+  await VerificationTokenModel.findOne({ userId })
+
+export const deleteVerificationTokenById = async (userId: Types.ObjectId) =>
   await VerificationTokenModel.findOneAndDelete({ userId })

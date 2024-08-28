@@ -3,9 +3,14 @@ import crypto from "crypto"
 import {
   createVerificationToken,
   deleteVerificationToken,
+  deleteVerificationTokenById,
+  findVerificationToken,
 } from "@/models/verificationToken"
-import { createUser, findUserByEmail } from "@/models/user"
-import { hashSync, compareSync, genSaltSync } from "bcrypt"
+import { createUser, findUserByEmail, findUserById } from "@/models/user"
+import mail from "@/lib/mail"
+import { formatUserProfile, sendErrorResponse } from "@/lib/helper"
+import { Types } from "mongoose"
+import jwt from "jsonwebtoken"
 
 export const generateAuthLink: RequestHandler = async (
   req: Request,
@@ -23,7 +28,86 @@ export const generateAuthLink: RequestHandler = async (
   const randomToken = crypto.randomBytes(36).toString("hex")
   await createVerificationToken(user._id, randomToken)
 
-  return res.json({
-    message: "Verification link has been sent to your email",
+  const link = `${process.env.VERIFICATION_LINK}?token=${randomToken}&userId=${user._id}`
+
+  await mail.sendVerificationEmail({
+    link,
+    to: user.email,
   })
+
+  res.json({
+    message: "Please check you email for link.",
+  })
+}
+
+export const verifyAuthToken: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const { token, userId } = req.query
+
+  const id = new Types.ObjectId(userId as string)
+
+  if (!token || !userId) {
+    return sendErrorResponse({
+      status: 403,
+      message: "Invalid request",
+      res,
+    })
+  }
+
+  const verificationToken = await findVerificationToken(id)
+
+  if (!verificationToken || !verificationToken.compare(token as string)) {
+    return sendErrorResponse({
+      status: 403,
+      message: "Invalid request, token mismatch!",
+      res,
+    })
+  }
+  const user = await findUserById(id)
+  console.log(user)
+
+  if (!user) {
+    return sendErrorResponse({
+      status: 500,
+      message: "Something went wrong, user not found!",
+      res,
+    })
+  }
+
+  await deleteVerificationTokenById(verificationToken._id)
+
+  const payload = { userId: user._id }
+
+  const authToken = jwt.sign(payload, process.env.JWT_SECRET as string, {
+    expiresIn: "15d",
+  })
+
+  res.cookie("authToken", authToken, {
+    httpOnly: true,
+    secure: true, // process.env.NODE_ENV === "production"
+    sameSite: "strict",
+    expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+  })
+
+  // res.redirect(
+  //   `${process.env.AUTH_SUCCESS_URL}?profile=${JSON.stringify(
+  //     formatUserProfile(user)
+  //   )}`
+  // )
+  res.send()
+}
+
+export const sendProfileInfo: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  res.json({
+    profile: req.user,
+  })
+}
+
+export const logout: RequestHandler = async (req: Request, res: Response) => {
+  res.clearCookie("authToken").send()
 }
