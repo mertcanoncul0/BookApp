@@ -6,11 +6,18 @@ import {
   deleteVerificationTokenById,
   findVerificationToken,
 } from "@/models/verificationToken"
-import { createUser, findUserByEmail, findUserById } from "@/models/user"
+import {
+  createUser,
+  findByIdAndUpdateName,
+  findUserByEmail,
+  findUserById,
+} from "@/models/user"
 import mail from "@/lib/mail"
 import { formatUserProfile, sendErrorResponse } from "@/lib/helper"
 import { Types } from "mongoose"
 import jwt from "jsonwebtoken"
+import cloudinary from "@/cloud/cloudinary"
+import { uploadAvatarToCloudinary } from "@/lib/fileUpload"
 
 export const generateAuthLink: RequestHandler = async (
   req: Request,
@@ -91,12 +98,11 @@ export const verifyAuthToken: RequestHandler = async (
     expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
   })
 
-  // res.redirect(
-  //   `${process.env.AUTH_SUCCESS_URL}?profile=${JSON.stringify(
-  //     formatUserProfile(user)
-  //   )}`
-  // )
-  res.send()
+  res.redirect(
+    `${process.env.AUTH_SUCCESS_URL}?profile=${JSON.stringify(
+      formatUserProfile(user)
+    )}`
+  )
 }
 
 export const sendProfileInfo: RequestHandler = async (
@@ -110,4 +116,28 @@ export const sendProfileInfo: RequestHandler = async (
 
 export const logout: RequestHandler = async (req: Request, res: Response) => {
   res.clearCookie("authToken").send()
+}
+
+export const updateProfile: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const user = await findByIdAndUpdateName(req.user.id, req.body.name)
+
+  if (!user) {
+    return sendErrorResponse({
+      status: 500,
+      message: "Something went wrong, user not found!",
+      res,
+    })
+  }
+
+  const file = req.files.avatar
+  if (file && !Array.isArray(file)) {
+    user.avatar = await uploadAvatarToCloudinary(file, user.avatar?.id)
+
+    await user.save()
+  }
+
+  res.json({ profile: formatUserProfile(user) })
 }

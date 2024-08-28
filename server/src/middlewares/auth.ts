@@ -1,4 +1,4 @@
-import { sendErrorResponse } from "@/lib/helper"
+import { formatUserProfile, sendErrorResponse } from "@/lib/helper"
 import { findUserById } from "@/models/user"
 import { RequestHandler } from "express"
 import jwt from "jsonwebtoken"
@@ -12,6 +12,7 @@ declare global {
         name?: string
         email: string
         role: "user" | "author"
+        avatar?: string
       }
     }
   }
@@ -43,12 +44,7 @@ export const isAuth: RequestHandler = async (req, res, next) => {
     })
   }
 
-  req.user = {
-    id: user._id,
-    name: user?.name,
-    email: user.email,
-    role: user.role,
-  }
+  req.user = formatUserProfile(user)
 
   next()
 }

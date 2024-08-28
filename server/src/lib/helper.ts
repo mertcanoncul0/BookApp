@@ -1,5 +1,5 @@
 import { UserDoc } from "@/models/user"
-import { Response } from "express"
+import { Request, Response } from "express"
 
 type ErrorResponseType = {
   res: Response
@@ -15,9 +15,10 @@ export const sendErrorResponse = ({
   res.status(status).json({ message })
 }
 
-export const formatUserProfile = (user: UserDoc) => ({
-  id: user._id.toString(),
+export const formatUserProfile = (user: UserDoc): Request["user"] => ({
+  id: user._id,
   name: user?.name,
   email: user.email,
   role: user.role,
+  avatar: user.avatar?.url,
 })

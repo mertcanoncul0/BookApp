@@ -5,6 +5,11 @@ export interface UserDoc {
   email: string
   role: "user" | "author"
   name?: string
+  signedUp: boolean
+  avatar?: {
+    url: string
+    id: string
+  }
 }
 
 const userSchema = new Schema<UserDoc>({
@@ -23,6 +28,15 @@ const userSchema = new Schema<UserDoc>({
     enum: ["user", "author"],
     default: "user",
   },
+  signedUp: {
+    type: Boolean,
+    default: false,
+  },
+  avatar: {
+    type: Object,
+    url: String,
+    id: String,
+  },
 })
 
 const UserModel = model("User", userSchema)
@@ -35,3 +49,6 @@ export const createUser = async (email: string) =>
 
 export const findUserById = async (id: Types.ObjectId) =>
   await UserModel.findById(id)
+
+export const findByIdAndUpdateName = async (id: Types.ObjectId, name: string) =>
+  await UserModel.findByIdAndUpdate(id, { name, signedUp: true }, { new: true })
