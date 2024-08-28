@@ -1,8 +1,14 @@
 import { generateAuthLink } from "@/controllers/auth"
-import express from "express"
+import { emailValidationSchema, validate } from "@/middlewares/validate"
+import express, { RequestHandler } from "express"
+import { z, ZodRawShape } from "zod"
 
 export default (router: express.Router) => {
-  router.post("/auth/generate-link", generateAuthLink)
+  router.post(
+    "/auth/generate-link",
+    validate(emailValidationSchema),
+    generateAuthLink
+  )
 
   router.post("/auth/verify", (req, res) => {})
 
