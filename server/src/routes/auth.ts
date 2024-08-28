@@ -1,7 +1,6 @@
 import { generateAuthLink } from "@/controllers/auth"
 import { emailValidationSchema, validate } from "@/middlewares/validate"
-import express, { RequestHandler } from "express"
-import { z, ZodRawShape } from "zod"
+import express from "express"
 
 export default (router: express.Router) => {
   router.post(

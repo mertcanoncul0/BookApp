@@ -1,12 +1,29 @@
 import { RequestHandler, Request, Response } from "express"
+import crypto from "crypto"
+import {
+  createVerificationToken,
+  deleteVerificationToken,
+} from "@/models/verificationToken"
+import { createUser, findUserByEmail } from "@/models/user"
+import { hashSync, compareSync, genSaltSync } from "bcrypt"
 
-export const generateAuthLink: RequestHandler = (
+export const generateAuthLink: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
-  console.log(req.body)
+  const { email } = req.body
+  let user = await findUserByEmail(email)
 
-  res.json({
-    message: "Hello World",
+  if (!user) {
+    user = await createUser(email)
+  }
+
+  await deleteVerificationToken(user._id)
+
+  const randomToken = crypto.randomBytes(36).toString("hex")
+  await createVerificationToken(user._id, randomToken)
+
+  return res.json({
+    message: "Verification link has been sent to your email",
   })
 }
