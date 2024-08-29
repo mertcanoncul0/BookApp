@@ -50,3 +50,8 @@ const AuthorModel = model("Author", authorSchema)
 export const createAuthor = async (author: AuthorDoc) => new AuthorModel(author)
 export const findAuthorBySlug = async (slug: string) =>
   await AuthorModel.findOne({ slug })
+
+export const findByIdBookAndPush = async (
+  id: Types.ObjectId,
+  bookId: Types.ObjectId
+) => await AuthorModel.findByIdAndUpdate(id, { $push: { books: bookId } })

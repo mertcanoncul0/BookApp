@@ -14,6 +14,7 @@ declare global {
         role: "user" | "author"
         avatar?: string
         signedUp: boolean
+        authorId?: Types.ObjectId
       }
     }
   }
@@ -46,4 +47,9 @@ export const isAuth: RequestHandler = async (req, res, next) => {
   req.user = formatUserProfile(user)
 
   next()
+}
+
+export const isAuthor: RequestHandler = async (req, res, next) => {
+  if (req.user.role === "author") next()
+  else sendErrorResponse({ status: 401, message: "Invalid request!", res })
 }
