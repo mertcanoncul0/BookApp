@@ -10,6 +10,7 @@ export interface UserDoc {
     url: string
     id: string
   }
+  authorId?: Types.ObjectId
 }
 
 const userSchema = new Schema<UserDoc>({
@@ -37,6 +38,10 @@ const userSchema = new Schema<UserDoc>({
     url: String,
     id: String,
   },
+  authorId: {
+    type: "ObjectId",
+    ref: "Author",
+  },
 })
 
 const UserModel = model("User", userSchema)
@@ -52,3 +57,8 @@ export const findUserById = async (id: Types.ObjectId) =>
 
 export const findByIdAndUpdateName = async (id: Types.ObjectId, name: string) =>
   await UserModel.findByIdAndUpdate(id, { name, signedUp: true }, { new: true })
+
+export const findByIdAndUpdateRole = async (
+  id: Types.ObjectId,
+  authorId: Types.ObjectId
+) => await UserModel.findByIdAndUpdate(id, { authorId, role: "author" })

@@ -2,7 +2,7 @@ import { formatUserProfile, sendErrorResponse } from "@/lib/helper"
 import { findUserById } from "@/models/user"
 import { RequestHandler } from "express"
 import jwt from "jsonwebtoken"
-import { Types } from "mongoose"
+import { Types, Schema } from "mongoose"
 
 declare global {
   namespace Express {
@@ -13,6 +13,7 @@ declare global {
         email: string
         role: "user" | "author"
         avatar?: string
+        signedUp: boolean
       }
     }
   }
@@ -32,8 +33,6 @@ export const isAuth: RequestHandler = async (req, res, next) => {
   const payload = jwt.verify(authToken, process.env.JWT_SECRET as string) as {
     userId: Types.ObjectId
   }
-
-  console.log(payload)
 
   const user = await findUserById(payload.userId)
   if (!user) {

@@ -13,7 +13,7 @@ interface Methods {
 
 const verifyTokenSchema = new Schema<VerificationTokenDoc, {}, Methods>({
   userId: {
-    type: "ObjectID",
+    type: "ObjectId",
     required: true,
   },
   token: {
