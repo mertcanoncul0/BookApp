@@ -53,7 +53,7 @@ export const verifyAuthToken: RequestHandler = async (
 ) => {
   const { token, userId } = req.query
 
-  const id = new Types.ObjectId(userId as string)
+  const id = userId as string
 
   if (!token || !userId) {
     return sendErrorResponse({

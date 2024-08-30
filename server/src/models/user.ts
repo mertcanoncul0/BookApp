@@ -1,7 +1,7 @@
 import { model, Schema, Types } from "mongoose"
 
 export interface UserDoc {
-  _id: Types.ObjectId
+  _id: string
   email: string
   role: "user" | "author"
   name?: string
@@ -10,7 +10,7 @@ export interface UserDoc {
     url: string
     id: string
   }
-  authorId?: Types.ObjectId
+  authorId?: string
 }
 
 const userSchema = new Schema<UserDoc>({
@@ -39,7 +39,7 @@ const userSchema = new Schema<UserDoc>({
     id: String,
   },
   authorId: {
-    type: "ObjectId",
+    type: String,
     ref: "Author",
   },
 })
@@ -52,13 +52,10 @@ export const findUserByEmail = async (email: string) =>
 export const createUser = async (email: string) =>
   await UserModel.create({ email })
 
-export const findUserById = async (id: Types.ObjectId) =>
-  await UserModel.findById(id)
+export const findUserById = async (id: string) => await UserModel.findById(id)
 
-export const findByIdAndUpdateName = async (id: Types.ObjectId, name: string) =>
+export const findByIdAndUpdateName = async (id: string, name: string) =>
   await UserModel.findByIdAndUpdate(id, { name, signedUp: true }, { new: true })
 
-export const findByIdAndUpdateRole = async (
-  id: Types.ObjectId,
-  authorId: Types.ObjectId
-) => await UserModel.findByIdAndUpdate(id, { authorId, role: "author" })
+export const findByIdAndUpdateRole = async (id: string, authorId: string) =>
+  await UserModel.findByIdAndUpdate(id, { authorId, role: "author" })

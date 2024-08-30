@@ -8,13 +8,13 @@ declare global {
   namespace Express {
     export interface Request {
       user: {
-        id: Types.ObjectId
+        id: string
         name?: string
         email: string
         role: "user" | "author"
         avatar?: string
         signedUp: boolean
-        authorId?: Types.ObjectId
+        authorId?: string
       }
     }
   }
@@ -32,7 +32,7 @@ export const isAuth: RequestHandler = async (req, res, next) => {
   }
 
   const payload = jwt.verify(authToken, process.env.JWT_SECRET as string) as {
-    userId: Types.ObjectId
+    userId: string
   }
 
   const user = await findUserById(payload.userId)

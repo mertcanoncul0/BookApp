@@ -1,7 +1,7 @@
 import { Types, Schema, model } from "mongoose"
 
 export interface BookDoc {
-  author: Types.ObjectId
+  author: string
   title: string
   slug: string
   description: string
@@ -25,7 +25,7 @@ export interface BookDoc {
 
 const bookSchema = new Schema<BookDoc>({
   author: {
-    type: "ObjectId",
+    type: String,
     ref: "Author",
     required: true,
   },
@@ -88,7 +88,7 @@ const bookSchema = new Schema<BookDoc>({
       required: true,
     },
     id: {
-      type: "ObjectId",
+      type: String,
       required: true,
     },
   },
@@ -97,3 +97,5 @@ const bookSchema = new Schema<BookDoc>({
 const BookModel = model("Book", bookSchema)
 
 export const createBook = async (book: BookDoc) => new BookModel(book)
+export const findBookByAuthor = async (author: string, slug: string) =>
+  await BookModel.findOne({ author, slug })

@@ -2,18 +2,18 @@ import { Request } from "express"
 import { model, Schema, Types } from "mongoose"
 
 interface AuthorDoc {
-  userId: Types.ObjectId
+  userId: string
   name: string
   about: string
   slug?: string
   socialLinks?: string[]
-  books?: Types.ObjectId[]
+  books?: string[]
 }
 
 const authorSchema = new Schema<AuthorDoc>(
   {
     userId: {
-      type: "ObjectId",
+      type: String,
       ref: "User",
       required: true,
     },
@@ -35,7 +35,7 @@ const authorSchema = new Schema<AuthorDoc>(
     socialLinks: [String],
     books: [
       {
-        type: Types.ObjectId,
+        type: String,
         ref: "Book",
       },
     ],
@@ -51,7 +51,5 @@ export const createAuthor = async (author: AuthorDoc) => new AuthorModel(author)
 export const findAuthorBySlug = async (slug: string) =>
   await AuthorModel.findOne({ slug })
 
-export const findByIdBookAndPush = async (
-  id: Types.ObjectId,
-  bookId: Types.ObjectId
-) => await AuthorModel.findByIdAndUpdate(id, { $push: { books: bookId } })
+export const findByIdBookAndPush = async (id: string, bookId: Types.ObjectId) =>
+  await AuthorModel.findByIdAndUpdate(id, { $push: { books: bookId } })

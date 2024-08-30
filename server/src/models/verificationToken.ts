@@ -2,7 +2,7 @@ import { compareSync, genSaltSync, hashSync } from "bcrypt"
 import { model, Schema, Types } from "mongoose"
 
 interface VerificationTokenDoc {
-  userId: Types.ObjectId
+  userId: string
   token: string
   expires: Date
 }
@@ -13,7 +13,7 @@ interface Methods {
 
 const verifyTokenSchema = new Schema<VerificationTokenDoc, {}, Methods>({
   userId: {
-    type: "ObjectId",
+    type: String,
     required: true,
   },
   token: {
@@ -42,16 +42,14 @@ verifyTokenSchema.methods.compare = function (token) {
 
 const VerificationTokenModel = model("VerificationToken", verifyTokenSchema)
 
-export const createVerificationToken = async (
-  userId: Types.ObjectId,
-  token: string
-) => await VerificationTokenModel.create({ userId, token })
+export const createVerificationToken = async (userId: string, token: string) =>
+  await VerificationTokenModel.create({ userId, token })
 
-export const deleteVerificationToken = async (userId: Types.ObjectId) =>
+export const deleteVerificationToken = async (userId: string) =>
   await VerificationTokenModel.findOneAndDelete({ userId })
 
-export const findVerificationToken = async (userId: Types.ObjectId) =>
+export const findVerificationToken = async (userId: string) =>
   await VerificationTokenModel.findOne({ userId })
 
-export const deleteVerificationTokenById = async (userId: Types.ObjectId) =>
+export const deleteVerificationTokenById = async (userId: string) =>
   await VerificationTokenModel.findOneAndDelete({ userId })
