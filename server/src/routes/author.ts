@@ -1,6 +1,7 @@
 import { getAuthorDetail, registerAuthor } from "@/controllers/authors"
 import { isAuth } from "@/middlewares/auth"
-import { newAuthorSchema, validate } from "@/middlewares/validate"
+import { newAuthorSchema } from "@/types/schema"
+import { validate } from "@/middlewares/validate"
 import express from "express"
 
 export default (router: express.Router) => {

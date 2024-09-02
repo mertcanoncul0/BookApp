@@ -1,4 +1,4 @@
-import { model, Schema, Types } from "mongoose"
+import { Model, model, ObjectId, Schema } from "mongoose"
 
 export interface UserDoc {
   _id: string
@@ -11,6 +11,7 @@ export interface UserDoc {
     id: string
   }
   authorId?: string
+  books: ObjectId[]
 }
 
 const userSchema = new Schema<UserDoc>({
@@ -42,9 +43,16 @@ const userSchema = new Schema<UserDoc>({
     type: String,
     ref: "Author",
   },
+  books: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Book",
+    },
+  ],
 })
 
 const UserModel = model("User", userSchema)
+export default UserModel as Model<UserDoc>
 
 export const findUserByEmail = async (email: string) =>
   await UserModel.findOne({ email })

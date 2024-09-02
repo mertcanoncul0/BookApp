@@ -16,7 +16,7 @@ export const sendErrorResponse = ({
 }
 
 export const formatUserProfile = (user: UserDoc): Request["user"] => ({
-  id: user._id,
+  id: user._id.toString(),
   name: user?.name,
   email: user.email,
   role: user.role,

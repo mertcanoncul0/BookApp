@@ -1,5 +1,6 @@
 import { formatUserProfile, sendErrorResponse } from "@/lib/helper"
-import { findUserById } from "@/models/user"
+import UserModel, { findUserById } from "@/models/user"
+import { AddReviewRequestHandler } from "@/types"
 import { RequestHandler } from "express"
 import jwt from "jsonwebtoken"
 import { Types, Schema } from "mongoose"
@@ -31,7 +32,7 @@ export const isAuth: RequestHandler = async (req, res, next) => {
     })
   }
 
-  const payload = jwt.verify(authToken, process.env.JWT_SECRET as string) as {
+  const payload = jwt.verify(authToken, process.env.JWT_SECRET!) as {
     userId: string
   }
 
@@ -45,6 +46,27 @@ export const isAuth: RequestHandler = async (req, res, next) => {
   }
 
   req.user = formatUserProfile(user)
+
+  next()
+}
+
+export const isPurchasedByTheUser: AddReviewRequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  const user = await UserModel.findOne({
+    _id: req.user.id,
+    books: req.body.bookId,
+  })
+
+  if (!user) {
+    return sendErrorResponse({
+      status: 401,
+      message: "You have not purchased this book!",
+      res,
+    })
+  }
 
   next()
 }

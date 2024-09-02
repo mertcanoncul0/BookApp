@@ -47,10 +47,7 @@ export const generateAuthLink: RequestHandler = async (
   })
 }
 
-export const verifyAuthToken: RequestHandler = async (
-  req: Request,
-  res: Response
-) => {
+export const verifyAuthToken: RequestHandler = async (req, res) => {
   const { token, userId } = req.query
 
   const id = userId as string
@@ -72,8 +69,8 @@ export const verifyAuthToken: RequestHandler = async (
       res,
     })
   }
+
   const user = await findUserById(id)
-  console.log(user)
 
   if (!user) {
     return sendErrorResponse({
@@ -83,7 +80,7 @@ export const verifyAuthToken: RequestHandler = async (
     })
   }
 
-  await deleteVerificationTokenById(verificationToken._id)
+  await deleteVerificationTokenById(verificationToken._id.toString())
 
   const payload = { userId: user._id }
 

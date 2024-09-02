@@ -1,4 +1,4 @@
-import { Types, Schema, model } from "mongoose"
+import { Types, Schema, model, Model } from "mongoose"
 
 export interface BookDoc {
   author: string
@@ -8,6 +8,7 @@ export interface BookDoc {
   language: string
   publishedAt: Date
   publicationName: string
+  avarageRating?: number
   genre: string
   price: {
     mrp: number
@@ -55,6 +56,7 @@ const bookSchema = new Schema<BookDoc>({
     required: true,
     trim: true,
   },
+  avarageRating: Number,
   genre: {
     type: String,
     required: true,
@@ -95,6 +97,8 @@ const bookSchema = new Schema<BookDoc>({
 })
 
 const BookModel = model("Book", bookSchema)
+
+export default BookModel as Model<BookDoc>
 
 export const createBook = async (book: BookDoc) => new BookModel(book)
 export const findBookByAuthor = async (author: string, slug: string) =>

@@ -1,11 +1,9 @@
 import { createNewBook, updateBook } from "@/controllers/book"
 import { isAuth, isAuthor } from "@/middlewares/auth"
 import { fileParser } from "@/middlewares/file"
-import {
-  newBookSchema,
-  updateBookSchema,
-  validate,
-} from "@/middlewares/validate"
+import { newBookSchema, updateBookSchema } from "@/types/schema"
+import { validate } from "@/middlewares/validate"
+
 import express from "express"
 
 export default (router: express.Router) => {

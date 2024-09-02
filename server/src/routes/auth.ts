@@ -7,11 +7,8 @@ import {
 } from "@/controllers/auth"
 import { isAuth } from "@/middlewares/auth"
 import { fileParser } from "@/middlewares/file"
-import {
-  emailValidationSchema,
-  newUserSchema,
-  validate,
-} from "@/middlewares/validate"
+import { validate } from "@/middlewares/validate"
+import { emailValidationSchema, newUserSchema } from "@/types/schema"
 import express from "express"
 
 export default (router: express.Router) => {

@@ -5,7 +5,6 @@ import dotenv from "dotenv"
 import router from "@/routes"
 import cookieParser from "cookie-parser"
 import { errorhandler } from "@/middlewares/error"
-import { fileParser } from "./middlewares/file"
 import path from "path"
 import formidable from "formidable"
 

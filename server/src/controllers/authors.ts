@@ -31,7 +31,7 @@ export const registerAuthor: RequestAuthorHandler = async (req, res) => {
   newAuthor.slug = uniqueSlug
   await newAuthor.save()
 
-  await findByIdAndUpdateRole(user.id, newAuthor._id)
+  await findByIdAndUpdateRole(user.id, newAuthor._id.toString())
 
   res.json({ message: "Thanks for registering as an author" })
 }
