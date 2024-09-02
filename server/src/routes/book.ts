@@ -1,4 +1,9 @@
-import { createNewBook, updateBook } from "@/controllers/book"
+import {
+  createNewBook,
+  getAllPurchasedBooks,
+  getBookPublicDetails,
+  updateBook,
+} from "@/controllers/book"
 import { isAuth, isAuthor } from "@/middlewares/auth"
 import { fileParser } from "@/middlewares/file"
 import { newBookSchema, updateBookSchema } from "@/types/schema"
@@ -24,4 +29,7 @@ export default (router: express.Router) => {
     validate(updateBookSchema),
     updateBook
   )
+
+  router.get("/book/list", isAuth, getAllPurchasedBooks)
+  router.get("/book/details/:slug", getBookPublicDetails)
 }

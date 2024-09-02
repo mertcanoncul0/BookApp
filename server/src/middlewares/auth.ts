@@ -3,7 +3,7 @@ import UserModel, { findUserById } from "@/models/user"
 import { AddReviewRequestHandler } from "@/types"
 import { RequestHandler } from "express"
 import jwt from "jsonwebtoken"
-import { Types, Schema } from "mongoose"
+import { ObjectId } from "mongoose"
 
 declare global {
   namespace Express {
@@ -16,6 +16,7 @@ declare global {
         avatar?: string
         signedUp: boolean
         authorId?: string
+        books?: ObjectId[]
       }
     }
   }

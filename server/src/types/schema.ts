@@ -191,3 +191,49 @@ export const newReviewSchema = z.object({
       return arg
     }),
 })
+
+export const historyValidationSchema = z.object({
+  bookId: z
+    .string({
+      required_error: "Book ID is missing!",
+      invalid_type_error: "Invalid book ID!",
+    })
+    .transform((arg, ctx) => {
+      if (!isValidObjectId(arg)) {
+        ctx.addIssue({ code: "custom", message: "Invalid book ID!" })
+        return z.NEVER
+      }
+
+      return arg
+    }),
+  lastLocation: z
+    .string({
+      invalid_type_error: "Invalid last location!",
+    })
+    .trim()
+    .optional(),
+  highlights: z
+    .array(
+      z.object({
+        selection: z
+          .string({
+            required_error: "Selection is missing!",
+            invalid_type_error: "Invalid selection!",
+          })
+          .trim(),
+        fill: z
+          .string({
+            required_error: "Fill is missing!",
+            invalid_type_error: "Invalid fill!",
+          })
+          .trim(),
+      })
+    )
+    .optional(),
+  remove: z
+    .boolean({
+      required_error: "Remove is missing!",
+      invalid_type_error: "Invalid remove!",
+    })
+    .optional(),
+})

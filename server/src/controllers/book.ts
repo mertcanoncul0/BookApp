@@ -1,6 +1,6 @@
 import { uploadBookToLocalDir, uploadCoverToCloudinary } from "@/lib/fileUpload"
 import { formatFileSize, sendErrorResponse } from "@/lib/helper"
-import { createBook, findBookByAuthor } from "@/models/book"
+import BookModel, { createBook, findBookByAuthor } from "@/models/book"
 import { CreateBookRequestHandler, UpdateBookRequestHandler } from "@/types"
 import { Types } from "mongoose"
 import path from "path"
@@ -8,6 +8,8 @@ import fs from "fs"
 import slugify from "slugify"
 import { findByIdBookAndPush } from "@/models/author"
 import cloudinary from "@/cloud/cloudinary"
+import { RequestHandler } from "express"
+import UserModel from "@/models/user"
 
 export const createNewBook: CreateBookRequestHandler = async (req, res) => {
   const { body, files, user } = req
@@ -165,4 +167,98 @@ export const updateBook: UpdateBookRequestHandler = async (req, res) => {
   await book.save()
 
   res.json({ message: "Book updated successfully!" })
+}
+
+interface PopulatedBooks {
+  cover: {
+    url: string
+    id: string
+  }
+  _id: string
+  author: {
+    _id: string
+    name: string
+    slug: string
+  }
+  title: string
+  slug: string
+}
+
+export const getAllPurchasedBooks: RequestHandler = async (req, res) => {
+  const user = await UserModel.findById(req.user.id).populate<{
+    books: PopulatedBooks[]
+  }>({
+    path: "books",
+    select: "author title cover slug",
+    populate: { path: "author", select: "slug name" },
+  })
+
+  if (!user) return res.json({ books: [] })
+  console.log(user)
+
+  res.json({
+    books: user.books.map((book) => ({
+      id: book._id,
+      title: book.title,
+      cover: book?.cover?.url,
+      slug: book.slug,
+      author: {
+        name: book.author.name,
+        slug: book.author.slug,
+      },
+    })),
+  })
+}
+
+export const getBookPublicDetails: RequestHandler = async (req, res) => {
+  const book = await BookModel.findOne({ slug: req.params.slug }).populate<{
+    author: PopulatedBooks["author"]
+  }>({
+    path: "author",
+    select: "name slug",
+  })
+
+  if (!book)
+    return sendErrorResponse({ res, status: 404, message: "Book not found!" })
+
+  const {
+    _id,
+    title,
+    cover,
+    author,
+    slug,
+    description,
+    genre,
+    language,
+    publishedAt,
+    publicationName,
+    avarageRating,
+    price: { mrp, sale },
+    fileInfo,
+  } = book
+
+  res.json({
+    book: {
+      id: _id,
+      title,
+      genre,
+      language,
+      slug,
+      description,
+      rating: avarageRating?.toFixed(2),
+      publicationName,
+      fileInfo,
+      publishedAt: publishedAt.toISOString(),
+      cover: cover?.url,
+      price: {
+        mrp: (mrp / 100).toFixed(2),
+        sale: (sale / 100).toFixed(2),
+      },
+      author: {
+        id: author._id,
+        name: author.name,
+        slug: author.slug,
+      },
+    },
+  })
 }

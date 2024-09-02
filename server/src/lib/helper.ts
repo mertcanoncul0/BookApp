@@ -23,6 +23,7 @@ export const formatUserProfile = (user: UserDoc): Request["user"] => ({
   avatar: user.avatar?.url,
   signedUp: user.signedUp,
   authorId: user.authorId,
+  books: user.books,
 })
 
 export const formatFileSize = (bytes: number) => {
